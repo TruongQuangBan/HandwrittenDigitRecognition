@@ -1,0 +1,4 @@
+*.pyc
+__pycache__/
+mnist_784.pkl
+openml_cache/
