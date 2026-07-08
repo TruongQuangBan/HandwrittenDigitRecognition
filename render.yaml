@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: handwritten-recognition
+    runtime: docker
+    repo: https://github.com/TruongQuangBan/HandwrittenDigitRecognition.git
+    branch: main
+    plan: starter
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    autoDeployTrigger: commit
+    envVars:
+      - key: PORT
+        value: 5000

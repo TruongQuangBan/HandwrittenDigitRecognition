@@ -1,4 +1,5 @@
 import base64
+import os
 from io import BytesIO
 
 from flask import Flask, jsonify, request, send_from_directory
@@ -81,4 +82,5 @@ def predict_base64():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 7860))
+    app.run(host="0.0.0.0", port=port)

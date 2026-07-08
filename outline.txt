@@ -1,0 +1,193 @@
+DAN Y CHI TIET BAO CAO WORD
+===========================
+
+Ten de tai goi y:
+Xay dung he thong nhan dien chu so viet tay su dung Logistic Regression, Flask va Docker
+
+Gioi thieu
+----------
+1. Ly do chon de tai
+   - Nhan dien chu so viet tay la bai toan kinh dien trong thi giac may tinh va hoc may.
+   - Tap du lieu MNIST phu hop de minh hoa quy trinh xay dung mot he thong AI tu huan luyen den trien khai.
+   - De tai ket hop machine learning, web API, giao dien nguoi dung va Docker.
+
+2. Muc tieu de tai
+   - Huan luyen mo hinh phan loai chu so 0-9 tu anh 28x28.
+   - Xay dung API Flask de nhan du lieu anh va tra ve ket qua du doan.
+   - Xay dung giao dien Canvas cho phep nguoi dung ve chu so truc tiep tren trinh duyet.
+   - Dong goi ung dung bang Docker de de trien khai len moi truong cloud.
+
+3. Pham vi de tai
+   - Su dung tap du lieu MNIST gom 60.000 anh train va 10.000 anh test.
+   - Mo hinh su dung Logistic Regression theo chien luoc one-vs-rest.
+   - Anh dau vao duoc chuyen ve grayscale 28x28 va flatten thanh vector 784 chieu.
+
+Chuong 1: Tong quan he thong
+----------------------------
+1.1. Bai toan nhan dien chu so viet tay
+   - Dau vao: anh chu so viet tay dang grayscale kich thuoc 28x28 hoac du lieu pixel tu Canvas.
+   - Dau ra: mot nhan thuoc cac lop 0, 1, 2, ..., 9.
+   - Thach thuc: net viet khac nhau, do day net ve, vi tri chu so, nhieu va sai khac giua anh nguoi dung ve voi anh MNIST.
+
+1.2. Kien truc tong the
+   - Client: static/index.html gom Canvas, xu ly anh 28x28 va gui request.
+   - Server: Flask trong app.py nhan request, tien xu ly du lieu va goi model.
+   - Model: model.pkl gom StandardScaler va LogisticRegression da huan luyen.
+   - Training pipeline: train.py tai du lieu, chuan hoa, huan luyen, danh gia va luu ket qua.
+
+1.3. Luong xu ly du doan
+   - Nguoi dung ve chu so tren Canvas.
+   - JavaScript thu nho anh ve 28x28 va tao mang 784 gia tri grayscale.
+   - Client gui JSON len endpoint /predict.
+   - Flask kiem tra du lieu, chuan hoa bang scaler, dua vao model va tra ve prediction.
+   - Giao dien hien thi chu so du doan.
+
+1.4. Cau truc ma nguon
+   - app.py: backend va API.
+   - train.py: huan luyen va danh gia.
+   - static/index.html: giao dien nguoi dung.
+   - Dockerfile: dong goi ung dung.
+   - requirements.txt: phu thuoc thu vien.
+   - report.txt: ket qua huan luyen.
+   - model.pkl: model da huan luyen.
+
+Chuong 2: Co so ly thuyet
+-------------------------
+2.1. Tap du lieu MNIST
+   - Tap du lieu anh chu so viet tay 0-9.
+   - Moi anh co kich thuoc 28x28 pixel.
+   - Tong so anh su dung: 70.000 anh, gom 60.000 train va 10.000 test.
+
+2.2. Bieu dien anh so
+   - Anh grayscale co moi pixel la mot gia tri cuong do sang.
+   - Anh 28x28 duoc flatten thanh vector 784 chieu.
+   - Moi dac trung trong vector tuong ung voi mot pixel cua anh.
+
+2.3. Chuan hoa du lieu
+   - StandardScaler bien doi cac dac trung ve phan phoi co trung binh gan 0 va do lech chuan gan 1.
+   - Chuan hoa giup Logistic Regression hoi tu tot hon va on dinh hon.
+   - Scaler can duoc fit tren tap train va su dung lai cho tap test cung nhu du lieu du doan thuc te.
+
+2.4. Logistic Regression cho bai toan phan loai
+   - Logistic Regression la mo hinh tuyen tinh dung cho phan loai.
+   - Mo hinh hoc trong so cho cac dac trung pixel de tinh diem cho tung lop.
+   - Ket qua du doan la lop co diem/kha nang cao nhat.
+
+2.5. Chien luoc one-vs-rest
+   - Bai toan MNIST co 10 lop nen can mo rong Logistic Regression tu nhi phan sang da lop.
+   - One-vs-rest huan luyen mot bo phan loai rieng cho moi chu so.
+   - Voi moi lop, mo hinh hoc cach phan biet lop do voi tat ca cac lop con lai.
+   - Khi du doan, he thong chon lop co diem du doan cao nhat.
+
+2.6. Do do danh gia Accuracy
+   - Accuracy = so mau du doan dung / tong so mau kiem tra.
+   - Chi so nay phu hop khi tap du lieu cac lop tuong doi can bang.
+   - Ket qua cua du an tren tap test: 0.9175.
+
+Chuong 3: Xay dung he thong
+---------------------------
+3.1. Huan luyen mo hinh
+   - Tai du lieu MNIST tu cache mnist_784.pkl hoac OpenML.
+   - Chia du lieu: X_train, y_train gom 60.000 mau; X_test, y_test gom 10.000 mau.
+   - Luu anh mau vao thu muc images/ de minh hoa du lieu.
+   - Su dung StandardScaler de fit_transform tap train va transform tap test.
+   - Khoi tao LogisticRegression voi multi_class="ovr", max_iter=100, n_jobs=1.
+   - Huan luyen model bang model.fit.
+   - Du doan tap test va tinh accuracy_score.
+   - Luu scaler va model vao model.pkl bang joblib.
+   - Ghi ket qua vao report.txt.
+
+3.2. Flask API
+   - app.py khoi tao Flask app va tai model.pkl khi server chay.
+   - Ham predict_digit nhan mang anh, reshape ve 1x784, chuan hoa bang scaler va goi model.predict.
+   - Endpoint GET / tra ve giao dien static/index.html.
+   - Endpoint POST /predict nhan JSON co truong image la mang 784 so.
+   - Endpoint POST /predict_base64 nhan anh base64, giai ma bang Pillow, resize 28x28, flatten va du doan.
+   - API co xu ly loi dau vao nhu thieu truong, sai kich thuoc mang, gia tri khong phai so hoac base64 khong hop le.
+
+3.3. Giao dien Canvas
+   - static/index.html xay dung trang web bang HTML, CSS va JavaScript.
+   - Canvas chinh co kich thuoc 280x280 de nguoi dung ve chu so.
+   - Khi du doan, anh duoc thu nho ve Canvas 28x28.
+   - JavaScript doc ImageData, tinh grayscale va tao mang 784 gia tri.
+   - Mang du lieu duoc gui len Flask bang fetch("/predict").
+   - Giao dien hien thi anh preview 28x28, trang thai xu ly va ket qua du doan.
+   - Co nut Xoa de reset Canvas va ket qua.
+
+Chuong 4: Trien khai Docker & Cloud
+-----------------------------------
+4.1. Ly do su dung Docker
+   - Dong goi moi truong chay ung dung va phu thuoc Python.
+   - Giam loi khac biet moi truong giua may phat trien va server.
+   - De trien khai len cac nen tang cloud ho tro container.
+
+4.2. Phan tich Dockerfile
+   - Su dung image nen python:3.9-slim.
+   - Thiet lap bien moi truong PYTHONDONTWRITEBYTECODE va PYTHONUNBUFFERED.
+   - Dat thu muc lam viec /app.
+   - Copy requirements.txt va cai phu thuoc bang pip.
+   - Copy toan bo ma nguon vao container.
+   - Expose cong 5000.
+   - Chay ung dung bang lenh python app.py.
+
+4.3. Quy trinh build va run Docker
+   - Build image: docker build -t handwritten-digit-recognition .
+   - Chay container: docker run -p 5000:5000 handwritten-digit-recognition
+   - Truy cap ung dung tai http://localhost:5000
+
+4.4. Trien khai len cloud
+   - Day ma nguon len GitHub: https://github.com/TruongQuangBan/HandwrittenDigitRecognition.git
+   - Chon nen tang cloud ho tro Docker/container.
+   - Cau hinh build tu Dockerfile.
+   - Mo cong 5000 hoac map sang cong HTTP cua nen tang cloud.
+   - Kiem tra endpoint / va /predict sau khi trien khai.
+
+Chuong 5: Ket qua va danh gia
+-----------------------------
+5.1. Ket qua huan luyen
+   - So anh train: 60.000.
+   - So anh test: 10.000.
+   - Thoi gian huan luyen: 20.97 giay.
+   - Accuracy cuoi cung tren tap test: 0.9175.
+
+5.2. Danh gia ket qua
+   - Mo hinh Logistic Regression dat do chinh xac kha tot voi bai toan MNIST co tien xu ly don gian.
+   - Thoi gian huan luyen ngan, phu hop cho muc tieu demo va hoc tap.
+   - He thong hoan thien du luong tu huan luyen, luu model, API den giao dien web.
+
+5.3. Han che
+   - Logistic Regression la mo hinh tuyen tinh nen kha nang hoc dac trung anh con han che.
+   - Ket qua voi anh nguoi dung ve tren Canvas co the kem hon tap test MNIST do khac biet ve cach can giua, do day net ve va phong cach viet.
+   - Chua co buoc tien xu ly nang cao nhu can giua chu so, cat vung anh co net ve, lam min hoac chuan hoa do day net.
+   - Chua co ma tran nham lan de phan tich chi tiet cac lop de nham lan.
+
+5.4. Huong cai thien
+   - Su dung mo hinh CNN de khai thac dac trung khong gian cua anh.
+   - Bo sung tien xu ly anh Canvas: crop vung chu so, center, scale va normalize tot hon.
+   - Hien thi xac suat tung lop 0-9 tren giao dien.
+   - Them unit test/API test va logging cho backend.
+   - Trien khai bang gunicorn thay vi Flask development server khi dua len production.
+
+Ket luan va huong phat trien
+----------------------------
+1. Ket luan
+   - Du an da xay dung thanh cong he thong nhan dien chu so viet tay.
+   - He thong su dung Logistic Regression one-vs-rest, StandardScaler, Flask API va giao dien Canvas.
+   - Model duoc huan luyen tren MNIST voi 60.000 anh train va danh gia tren 10.000 anh test.
+   - Ket qua accuracy dat 0.9175, dap ung muc tieu demo bai toan nhan dien chu so viet tay.
+
+2. Huong phat trien
+   - Nang cap mo hinh sang CNN hoac cac mo hinh deep learning khac.
+   - Cai thien tien xu ly anh nguoi dung ve tren Canvas.
+   - Bo sung dashboard thong ke ket qua du doan.
+   - Trien khai len cloud voi pipeline CI/CD.
+   - Toi uu Docker image va cau hinh production server.
+
+Tai lieu tham khao
+------------------
+1. Scikit-learn Documentation: https://scikit-learn.org/
+2. Flask Documentation: https://flask.palletsprojects.com/
+3. OpenML MNIST Dataset: https://www.openml.org/search?type=data&sort=runs&id=554
+4. Docker Documentation: https://docs.docker.com/
+5. Pillow Documentation: https://pillow.readthedocs.io/
+6. MNIST Database: http://yann.lecun.com/exdb/mnist/
