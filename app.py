@@ -3,23 +3,48 @@ import os
 from io import BytesIO
 
 from flask import Flask, request, jsonify, send_from_directory
+import joblib
 import numpy as np
 from PIL import Image, UnidentifiedImageError
 
 
 app = Flask(__name__)
-model_params = np.load("model_params.npz")
-scaler_mean = model_params["mean"]
-scaler_scale = model_params["scale"]
-model_coef = model_params["coef"]
-model_intercept = model_params["intercept"]
-model_classes = model_params["classes"]
+MODEL_FILE = "model.pkl"
+scaler = None
+model = None
+
+
+def load_model():
+    if not os.path.exists(MODEL_FILE):
+        print(f"Canh bao: Khong tim thay file {MODEL_FILE}. API du doan se tam thoi khong kha dung.")
+        return None, None
+
+    try:
+        model_bundle = joblib.load(MODEL_FILE)
+    except Exception as error:
+        print(f"Canh bao: Khong the load {MODEL_FILE}: {error}")
+        return None, None
+
+    loaded_scaler = model_bundle.get("scaler") if isinstance(model_bundle, dict) else None
+    loaded_model = model_bundle.get("model") if isinstance(model_bundle, dict) else model_bundle
+
+    if loaded_scaler is None or loaded_model is None:
+        print(f"Canh bao: {MODEL_FILE} khong co du scaler va model.")
+        return None, None
+
+    return loaded_scaler, loaded_model
+
+
+scaler, model = load_model()
 
 
 def predict_digit(image_array):
-    image_scaled = (image_array - scaler_mean) / scaler_scale
-    scores = model_coef @ image_scaled + model_intercept
-    return int(model_classes[np.argmax(scores)])
+    if scaler is None or model is None:
+        raise RuntimeError("Model is not available.")
+
+    image_scaled = scaler.transform(image_array.reshape(1, -1))
+    prediction = model.predict(image_scaled)[0]
+    return int(prediction)
 
 
 def decode_base64_image(image_base64):
@@ -61,7 +86,10 @@ def predict():
     except (TypeError, ValueError):
         return jsonify({"error": "Field 'image' must contain only numbers."}), 400
 
-    prediction = predict_digit(image_array)
+    try:
+        prediction = predict_digit(image_array)
+    except RuntimeError as error:
+        return jsonify({"error": str(error)}), 503
 
     return jsonify({"prediction": prediction})
 
@@ -79,7 +107,10 @@ def predict_base64():
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
 
-    prediction = predict_digit(image_array)
+    try:
+        prediction = predict_digit(image_array)
+    except RuntimeError as error:
+        return jsonify({"error": str(error)}), 503
 
     return jsonify({"prediction": prediction})
 

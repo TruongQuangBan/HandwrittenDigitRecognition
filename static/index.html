@@ -385,7 +385,7 @@
     }
 
     async function predict() {
-      const image = buildModelInput();
+      const mangPixel = buildModelInput();
       predictButton.disabled = true;
       predictionValue.textContent = "...";
       statusText.textContent = "Đang gửi ảnh tới model.";
@@ -397,7 +397,7 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ image })
+          body: JSON.stringify({ image: mangPixel })
         });
 
         const data = await response.json();
@@ -409,6 +409,7 @@
         predictionValue.textContent = data.prediction;
         statusText.textContent = "Dự đoán hoàn tất.";
       } catch (error) {
+        console.error("Loi khi goi API du doan:", error);
         predictionValue.textContent = "-";
         statusText.textContent = error.message || "Không thể kết nối server.";
         statusText.classList.add("error");
