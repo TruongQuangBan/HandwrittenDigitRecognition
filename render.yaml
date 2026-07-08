@@ -8,6 +8,3 @@ services:
     region: singapore
     dockerfilePath: ./Dockerfile
     autoDeployTrigger: commit
-    envVars:
-      - key: PORT
-        value: 5000

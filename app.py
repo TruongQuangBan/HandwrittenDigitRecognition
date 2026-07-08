@@ -2,7 +2,7 @@ import base64
 import os
 from io import BytesIO
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 import numpy as np
 from PIL import Image, UnidentifiedImageError
 
@@ -44,7 +44,7 @@ def image_to_model_input(image):
 
 
 @app.route("/")
-def index():
+def home():
     return send_from_directory("static", "index.html")
 
 
@@ -85,5 +85,4 @@ def predict_base64():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 7860))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
