@@ -3,20 +3,23 @@ import os
 from io import BytesIO
 
 from flask import Flask, jsonify, request, send_from_directory
-import joblib
 import numpy as np
 from PIL import Image, UnidentifiedImageError
 
 
 app = Flask(__name__)
-bundle = joblib.load("model.pkl")
-scaler = bundle["scaler"]
-model = bundle["model"]
+model_params = np.load("model_params.npz")
+scaler_mean = model_params["mean"]
+scaler_scale = model_params["scale"]
+model_coef = model_params["coef"]
+model_intercept = model_params["intercept"]
+model_classes = model_params["classes"]
 
 
 def predict_digit(image_array):
-    image_scaled = scaler.transform(image_array.reshape(1, -1))
-    return int(model.predict(image_scaled)[0])
+    image_scaled = (image_array - scaler_mean) / scaler_scale
+    scores = model_coef @ image_scaled + model_intercept
+    return int(model_classes[np.argmax(scores)])
 
 
 def decode_base64_image(image_base64):

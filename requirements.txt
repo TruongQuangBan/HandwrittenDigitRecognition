@@ -1,6 +1,4 @@
 flask
 gunicorn
-scikit-learn
 numpy
 pillow
-joblib
