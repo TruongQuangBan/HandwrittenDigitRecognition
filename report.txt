@@ -1,8 +1,0 @@
-Bao cao huan luyen MNIST
-========================
-So luong train: 60000
-So luong test: 10000
-Thoi gian huan luyen: 20.97 giay
-Do chinh xac tren tap test: 0.9175
-
-Ghi chu: Logistic Regression one-vs-rest huan luyen mot bo phan loai nhi phan cho moi chu so, sau do chon lop co diem du doan cao nhat.

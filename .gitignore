@@ -3,3 +3,10 @@ __pycache__/
 .DS_Store
 mnist_784.pkl
 openml_cache/
+report_work/
+BaoCao*.md
+BaoCao*.docx
+outline.txt
+project_info.txt
+report.txt
+model_params.npz
